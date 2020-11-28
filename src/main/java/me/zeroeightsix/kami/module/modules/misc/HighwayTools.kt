@@ -85,7 +85,7 @@ object HighwayTools : Module() {
     private val outline = register(Settings.booleanBuilder("Outline").withValue(true).withVisibility { page.value == Page.CONFIG })
     private val aFilled = register(Settings.integerBuilder("FilledAlpha").withValue(26).withRange(0, 255).withStep(1).withVisibility { filled.value && page.value == Page.CONFIG })
     private val aOutline = register(Settings.integerBuilder("OutlineAlpha").withValue(91).withRange(0, 255).withStep(1).withVisibility { outline.value && page.value == Page.CONFIG })
-
+                                        
     // internal settings
     val ignoreBlocks = hashSetOf(
             Blocks.STANDING_SIGN,
@@ -104,6 +104,9 @@ object HighwayTools : Module() {
     private var buildDirectionSaved = Direction.NORTH
     private var baritoneSettingAllowPlace = false
     private var baritoneSettingRenderGoal = false
+        
+    //Another config for ignoreBlocks
+    private val blocksIgnored = register(Settings.stringBuilder("IgnoredBlocks").withValue(ignoreBlocks).withVisibility { page.value == Page.CONFIG })
 
     // runtime vars
     val pendingTasks = PriorityQueue<BlockTask>(BlockTaskComparator)
