@@ -106,7 +106,7 @@ object HighwayTools : Module() {
     private var baritoneSettingRenderGoal = false
         
     //Another config for ignoreBlocks
-    blocksIgnored = register(Settings.stringBuilder("IgnoredBlocks").withValue(ignoreBlocks).withVisibility { page.value == Page.CONFIG })
+   private val blocksIgnored = register(Settings.stringBuilder("IgnoredBlocks").withValue(ignoreBlocks).withVisibility { page.value == Page.CONFIG })
 
     // runtime vars
     val pendingTasks = PriorityQueue<BlockTask>(BlockTaskComparator)
