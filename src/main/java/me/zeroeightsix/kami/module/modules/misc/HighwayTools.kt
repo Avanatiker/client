@@ -106,7 +106,7 @@ object HighwayTools : Module() {
     private var baritoneSettingRenderGoal = false
         
     //Another config for ignoreBlocks
-    private val blocksIgnored = register(Settings.stringBuilder("IgnoredBlocks").withValue(ignoreBlocks).withVisibility { page.value == Page.CONFIG })
+    blocksIgnored = register(Settings.stringBuilder("IgnoredBlocks").withValue(ignoreBlocks).withVisibility { page.value == Page.CONFIG })
 
     // runtime vars
     val pendingTasks = PriorityQueue<BlockTask>(BlockTaskComparator)
@@ -125,7 +125,7 @@ object HighwayTools : Module() {
     private var totalBlocksDestroyed = 0
     private var startTime = 0L
     private var prevFood = 0
-    private var foodLoss = 1
+    private var foodLoss = 0
     private var materialLeft = 0
     private var fillerMatLeft = 0
 
@@ -925,6 +925,9 @@ object HighwayTools : Module() {
             "    §7Placements per second: §9%.2f".format(totalBlocksPlaced / runtimeSec),
             "    §7Breaks per second: §9%.2f".format(totalBlocksDestroyed / runtimeSec),
             "    §7Distance per hour: §9%.2f".format((getDistance(startingBlockPos.toVec3d(), currentBlockPos.toVec3d()).toInt() / runtimeSec) * 60 * 60),
+            if (foodLoss == 0)
+            "    §7One food loss per ∞ blocks mined",
+            else
             "    §7One food loss per §9${totalBlocksDestroyed / foodLoss}§7 blocks mined",
             "§rEnvironment",
             "    §7Starting coordinates: §9(${startingBlockPos.asString()})",
