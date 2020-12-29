@@ -6,6 +6,7 @@ import me.zeroeightsix.kami.module.Module
 import me.zeroeightsix.kami.module.modules.player.AutoEat
 import me.zeroeightsix.kami.module.modules.player.InventoryManager
 import me.zeroeightsix.kami.module.modules.player.NoBreakAnimation
+import me.zeroeightsix.kami.module.modules.render.StorageESP
 import me.zeroeightsix.kami.process.HighwayToolsProcess
 import me.zeroeightsix.kami.setting.Settings
 import me.zeroeightsix.kami.util.BaritoneUtils
@@ -13,6 +14,7 @@ import me.zeroeightsix.kami.util.BlockUtils
 import me.zeroeightsix.kami.util.InventoryUtils
 import me.zeroeightsix.kami.util.color.ColorHolder
 import me.zeroeightsix.kami.util.graphics.ESPRenderer
+import me.zeroeightsix.kami.util.graphics.GeometryMasks
 import me.zeroeightsix.kami.util.math.CoordinateConverter.asString
 import me.zeroeightsix.kami.util.math.Direction
 import me.zeroeightsix.kami.util.math.RotationUtils
@@ -27,6 +29,7 @@ import net.minecraft.block.Block
 import net.minecraft.block.Block.getIdFromBlock
 import net.minecraft.block.BlockLiquid
 import net.minecraft.client.audio.PositionedSoundRecord
+import net.minecraft.entity.item.*
 import net.minecraft.init.Blocks
 import net.minecraft.init.SoundEvents
 import net.minecraft.network.play.client.CPacketPlayer
@@ -1246,6 +1249,7 @@ object HighwayTools : Module() {
                     if (!pathing && blockTask.taskState == TaskState.PLACE && !buildDirectionSaved.isDiagonal) adjustPlayerPosition(true)
                     refreshData()
                     if (debugMessages.value != DebugMessages.OFF) sendChatMessage("$chatName Refreshing data")
+                    if (punchBlocking()) sendChatMessage("$chatName Punched blocking entity")
 //                    reset()
 //                    disable()
 //                    enable()
@@ -1253,6 +1257,22 @@ object HighwayTools : Module() {
                     // Scaffold
                 }
             }
+        }
+
+        /* Checks if either a boat or a minecart is blocking the highway, and if so punches it */
+        fun punchBlocking(): Boolean {
+            for (entity in mc.world.loadedEntityList) {
+                if ((entity is EntityMinecart ||
+                    entity is EntityBoat)
+                    && getDistance(mc.player.positionVector, entity.positionVector) <= maxReach.value) {
+                    val rotation = RotationUtils.getRotationTo(entity.positionVector, true)
+                    setRotation(rotation)
+                    mc.playerController.attackEntity(mc.player, entity)
+                    mc.player.swingArm(EnumHand.MAIN_HAND)
+                    return true
+                    }
+            }
+            return false
         }
 
         fun reset() {
