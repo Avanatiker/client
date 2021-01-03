@@ -34,6 +34,7 @@ import net.minecraft.block.Block.getIdFromBlock
 import net.minecraft.block.BlockLiquid
 import net.minecraft.block.state.IBlockState
 import net.minecraft.client.audio.PositionedSoundRecord
+import net.minecraft.entity.item.*
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.init.Blocks
 import net.minecraft.init.Enchantments
@@ -1257,6 +1258,7 @@ object HighwayTools : Module() {
                     if (!pathing && blockTask.taskState == TaskState.PLACE && !buildDirectionSaved.isDiagonal) adjustPlayerPosition(true)
                     refreshData()
                     if (debugMessages.value != DebugMessages.OFF && (mc.currentScreen !is DisplayGuiScreen || mc.currentServerData != null)) sendChatMessage("$chatName Refreshing data")
+                    if (punchBlocking()) sendChatMessage("$chatName Punched blocking entity")
 //                    reset()
 //                    disable()
 //                    enable()
@@ -1264,6 +1266,22 @@ object HighwayTools : Module() {
                     // Scaffold
                 }
             }
+        }
+
+        /* Checks if either a boat or a minecart is blocking the highway, and if so punches it */
+        fun punchBlocking(): Boolean {
+            for (entity in mc.world.loadedEntityList) {
+                if ((entity is EntityMinecart ||
+                    entity is EntityBoat)
+                    && getDistance(mc.player.positionVector, entity.positionVector) <= maxReach.value) {
+                    val rotation = RotationUtils.getRotationTo(entity.positionVector, true)
+                    setRotation(rotation)
+                    mc.playerController.attackEntity(mc.player, entity)
+                    mc.player.swingArm(EnumHand.MAIN_HAND)
+                    return true
+                    }
+            }
+            return false
         }
 
         fun reset() {
