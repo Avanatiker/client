@@ -393,26 +393,19 @@ object AutoObsidian : Module() {
     }
 
     private fun placeShulker(pos: BlockPos) {
+        val shulkerIdInHotbar = getShulkerIdInHotbar()
         val shulkerIdNotInHotbar = getShulkerIdNotInHotBar()
-        if (getShulkerIdInHotbar() == -1 && getShulkerIdNotInHotBar() != -1) {
+        if (shulkerIdInHotbar == -1 && getShulkerIdNotInHotBar() != -1) {
             InventoryUtils.moveToHotbar(shulkerIdNotInHotbar, Items.DIAMOND_PICKAXE.id)
             shulkerBoxId = shulkerIdNotInHotbar
-        } else {
-            for (shulkerId in 219..234) {
-                if (InventoryUtils.getSlotsHotbar(shulkerId) == null) {
-                    if (shulkerId == 234) {
-                        sendChatMessage("$chatName No shulker box was found in hotbar, disabling.")
-                        mc.soundHandler.playSound(PositionedSoundRecord.getRecord(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f))
-                        disable()
-                    }
-                    continue
-                }
-                shulkerBoxId = shulkerId
-                InventoryUtils.swapSlotToItem(shulkerId)
-                break
-            }
+            return
+        } else if (shulkerIdInHotbar == -1) {
+            sendChatMessage("$chatName No shulker box was found in hotbar, disabling.")
+            mc.soundHandler.playSound(PositionedSoundRecord.getRecord(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f))
+            disable()
         }
 
+        InventoryUtils.swapSlotToItem(shulkerBoxId)
         if (mc.world.getBlockState(pos).block !is BlockShulkerBox) {
             placeBlock(pos)
         }
@@ -431,7 +424,6 @@ object AutoObsidian : Module() {
                 sendChatMessage("$chatName No ender chest was found in inventory, disabling.")
                 mc.soundHandler.playSound(PositionedSoundRecord.getRecord(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f))
                 disable()
-                return
             }
         }
 
